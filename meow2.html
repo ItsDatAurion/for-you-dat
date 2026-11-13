@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I'm Truly Sorry</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        theme: {
+                            bg: 'var(--bg-color)',
+                            card: 'var(--card-color)',
+                            primary: 'var(--primary-color)',
+                            accent: 'var(--accent-color)',
+                            text: 'var(--text-color)',
+                            muted: 'var(--muted-color)',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        handwriting: ['Dancing Script', 'cursive']
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-10px) rotate(3deg)' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(15px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        pulseGentle: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.03)' }
+                        }
+                    },
+                    animation: {
+                        float: 'float 5s ease-in-out infinite',
+                        fadeIn: 'fadeIn 0.8s ease-out forwards',
+                        pulseGentle: 'pulseGentle 3s ease-in-out infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --card-color: #ffffff;
+            --primary-color: #e8b4b8;
+            --accent-color: #ad6b73;
+            --text-color: #4a3e3d;
+            --muted-color: #8c7a7b;
+        }
+
+        .theme-blush {
+            --bg-color: #fdf6f6;
+            --card-color: #ffffff;
+            --primary-color: #f4c2c2;
+            --accent-color: #c97c7c;
+            --text-color: #4a3b3b;
+            --muted-color: #967d7d;
+        }
+
+        .theme-sage {
+            --bg-color: #f6f8f6;
+            --card-color: #ffffff;
+            --primary-color: #b8cbb8;
+            --accent-color: #6a8d6a;
+            --text-color: #384238;
+            --muted-color: #7d8c7d;
+        }
+
+        .theme-lavender {
+            --bg-color: #f8f6fa;
+            --card-color: #ffffff;
+            --primary-color: #d8c4e8;
+            --accent-color: #8d6cb0;
+            --text-color: #3e3846;
+            --muted-color: #837991;
+        }
+
+        .theme-warm {
+            --bg-color: #fcf8f2;
+            --card-color: #ffffff;
+            --primary-color: #f0cfaf;
+            --accent-color: #be824b;
+            --text-color: #463c32;
+            --muted-color: #8f8072;
+        }
+
+        /* Glassmorphism & Custom Shadow */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+        }
+
+        .glass-card-hover {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.07), 0 8px 20px -6px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Flip Card Effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.3;
+            animation: floatParticle 12s infinite linear;
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.4; }
+            80% { opacity: 0.4; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-theme-bg text-theme-text font-sans antialiased min-h-screen transition-colors duration-500 relative overflow-x-hidden">
+
+    <!-- Floating Background Particles Canvas/Container -->
+    <div id="particles-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Navigation / Top Control Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-40 px-6 py-4 flex justify-between items-center bg-theme-bg/60 backdrop-blur-md transition-colors duration-500">
+        <div class="flex items-center gap-2">
+            <i data-lucide="heart" class="w-5 h-5 text-theme-accent fill-theme-accent/20"></i>
+            <span class="font-serif italic font-semibold text-lg text-theme-text" id="nav-title">For You</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <!-- Audio Toggle Button -->
+            <button id="audio-toggle" onclick="toggleAudio()" class="p-2.5 rounded-full bg-theme-card/80 text-theme-text hover:bg-theme-card shadow-sm transition-all hover:scale-105 border border-black/5" title="Toggle Ambient Melody">
+                <i data-lucide="music" id="audio-icon" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="relative z-10 max-w-4xl mx-auto px-4 pt-28 pb-20 flex flex-col gap-20">
+
+        <!-- HERO SECTION -->
+        <section class="text-center space-y-6 pt-8 animate-fadeIn flex flex-col items-center">
+            <div class="inline-flex items-center justify-center p-3 rounded-full bg-theme-primary/20 text-theme-accent mb-2 animate-pulseGentle">
+                <i data-lucide="heart-handshake" class="w-8 h-8"></i>
+            </div>
+            <h1 class="font-serif text-4xl sm:text-6xl font-normal tracking-tight leading-tight text-theme-text">
+                <span id="display-headline">I'm Truly Sorry,</span><br>
+                <span class="italic font-light text-theme-accent" id="display-recipient">My Dearest Preksha</span>
+            </h1>
+            <p class="max-w-xl mx-auto text-theme-muted text-base sm:text-lg font-light leading-relaxed" id="display-subheadline">
+                SWYYY🥺🥺🥺
+            </p>
+            <div class="pt-4 flex justify-center">
+                <a href="#letter" class="text-xs uppercase tracking-widest text-theme-muted hover:text-theme-accent flex flex-col items-center gap-2 transition-colors duration-300">
+                    <span>Read my heart</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 animate-bounce"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- PERSONAL LETTER CARD SECTION -->
+        <section id="letter" class="scroll-mt-28">
+            <div class="glass-card rounded-3xl p-8 sm:p-12 relative overflow-hidden transition-all">
+                <!-- Decorative Quotes Background -->
+                <div class="absolute -top-4 -left-2 text-theme-primary/20 font-serif text-9xl pointer-events-none select-none">“</div>
+                <div class="absolute -bottom-16 -right-2 text-theme-primary/20 font-serif text-9xl pointer-events-none select-none">”</div>
+                
+                <div class="relative z-10 space-y-6">
+                    <div class="flex items-center justify-between border-b border-theme-primary/20 pb-4">
+                        <span class="font-handwriting text-2xl text-theme-accent" id="display-letter-greeting">Dearest Preksha,</span>
+                        <span class="text-xs text-theme-muted tracking-wider uppercase" id="display-date">Today</span>
+                    </div>
+
+                    <!-- Display Message Body -->
+                    <div id="display-message" class="whitespace-pre-line text-theme-text font-serif text-base sm:text-lg leading-relaxed font-light">
+I know I let you down, and I feel truly awful about it. Ik thoda sa pookie hu bhool jata hu but sorryyyyy😭😭😭😭😭 itna kon tadpaata hai nanni si jaan ko 😭
+Please know that it was never my intention to hurt you. 
+You deserve patience, honesty, and understanding, and I am committed to giving you just that. 
+
+SORRY YWWRRRRRR😭😭 
+Maan bhi jao😭
+                    </div>
+
+                    <div class="pt-6 border-t border-theme-primary/20 flex flex-col items-end">
+                        <span class="text-xs uppercase tracking-widest text-theme-muted">With all my sincerity,</span>
+                        <span class="font-handwriting text-3xl text-theme-accent mt-1" id="display-sender">Vedant</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REASONS & COMMITMENTS (FLIP CARDS) -->
+        <section class="space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="font-serif text-2xl sm:text-3xl text-theme-text">My Promises to You</h2>
+                <p class="text-theme-muted text-sm font-light">Click or hover over each card to reveal my commitments.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="flip-card h-64 perspective-1000 cursor-pointer">
+                    <div class="flip-card-inner relative w-full h-full rounded-2xl shadow-sm">
+                        <!-- Front -->
+                        <div class="flip-card-front absolute inset-0 glass-card rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-3">
+                            <div class="p-3 rounded-full bg-theme-primary/20 text-theme-accent">
+                                <i data-lucide="ear" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-serif text-lg font-medium text-theme-text" id="card1-title-front">Active Listening</h3>
+                            <p class="text-xs text-theme-muted">Hover to see my commitment</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="flip-card-back absolute inset-0 bg-theme-accent text-white rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-2 shadow-md">
+                            <i data-lucide="check-circle2" class="w-6 h-6 text-white/80"></i>
+                            <h3 class="font-serif text-lg font-medium">I Will Listen</h3>
+                            <p class="text-xs leading-relaxed text-white/90" id="card1-desc-back">Aapki daat bhi sun luga pls maan jao 😭😭</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="flip-card h-64 perspective-1000 cursor-pointer">
+                    <div class="flip-card-inner relative w-full h-full rounded-2xl shadow-sm">
+                        <!-- Front -->
+                        <div class="flip-card-front absolute inset-0 glass-card rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-3">
+                            <div class="p-3 rounded-full bg-theme-primary/20 text-theme-accent">
+                                <i data-lucide="shield-check" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-serif text-lg font-medium text-theme-text" id="card2-title-front">Accountability</h3>
+                            <p class="text-xs text-theme-muted">Hover to see my commitment</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="flip-card-back absolute inset-0 bg-theme-accent text-white rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-2 shadow-md">
+                            <i data-lucide="check-circle2" class="w-6 h-6 text-white/80"></i>
+                            <h3 class="font-serif text-lg font-medium">No Excuses</h3>
+                            <p class="text-xs leading-relaxed text-white/90" id="card2-desc-back">Nanni si jaan hu thoda toh rehem karo i am trying my best 🥺🥺</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="flip-card h-64 perspective-1000 cursor-pointer">
+                    <div class="flip-card-inner relative w-full h-full rounded-2xl shadow-sm">
+                        <!-- Front -->
+                        <div class="flip-card-front absolute inset-0 glass-card rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-3">
+                            <div class="p-3 rounded-full bg-theme-primary/20 text-theme-accent">
+                                <i data-lucide="hourglass" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-serif text-lg font-medium text-theme-text" id="card3-title-front">Patience</h3>
+                            <p class="text-xs text-theme-muted">Hover to see my commitment</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="flip-card-back absolute inset-0 bg-theme-accent text-white rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-2 shadow-md">
+                            <i data-lucide="check-circle2" class="w-6 h-6 text-white/80"></i>
+                            <h3 class="font-serif text-lg font-medium">Your Time & Pace</h3>
+                            <p class="text-xs leading-relaxed text-white/90" id="card3-desc-back">meow...😭😭</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE FORGIVENESS METER & CHOICE BUTTONS -->
+        <section class="glass-card rounded-3xl p-8 sm:p-12 text-center space-y-8 relative overflow-hidden">
+            <div class="space-y-3">
+                <span class="text-xs uppercase tracking-widest text-theme-accent font-semibold">How are you feeling?</span>
+                <h2 class="font-serif text-3xl text-theme-text">Sorry.... *</h2>
+                <p class="text-theme-muted text-sm max-w-md mx-auto font-light">itna kaafi nhi tha?🥺</p>
+            </div>
+
+            <!-- Choice Action Buttons -->
+            <div class="relative min-h-[120px] flex justify-center items-center gap-4 pt-2">
+                <button onclick="handleForgive()" class="px-8 py-4 rounded-full bg-theme-accent text-white font-medium shadow-md hover:bg-theme-accent/90 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 group z-10">
+                    <i data-lucide="heart" class="w-5 h-5 fill-white/30 group-hover:scale-110 transition-transform"></i>
+                    <span>I forgive you</span>
+                </button>
+                <button id="runaway-btn" onmouseover="dodgeButton()" ontouchstart="dodgeButton(event)" onclick="dodgeButton(event)" class="px-8 py-4 rounded-full bg-theme-card border border-theme-primary/40 text-theme-text font-medium transition-all duration-200 flex items-center justify-center gap-2 z-50">
+                    <i data-lucide="clock" class="w-5 h-5 text-theme-muted"></i>
+                    <span>I still need time</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Response Box -->
+            <div id="response-box" class="hidden transition-all duration-500 pt-6">
+                <div id="response-content" class="p-6 rounded-2xl max-w-lg mx-auto text-center space-y-3"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-8 text-xs text-theme-muted relative z-10 border-t border-theme-primary/20">
+        <p>🥺🥺</p>
+    </footer>
+
+    <!-- CUSTOMIZATION SIDE PANEL MODAL -->
+    <div id="customizer-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex justify-end">
+        <div id="customizer-panel" class="w-full max-w-md bg-white h-full shadow-2xl p-6 overflow-y-auto transform translate-x-full transition-transform duration-300 flex flex-col gap-6">
+            
+            <div class="flex justify-between items-center border-b pb-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-5 h-5 text-theme-accent"></i>
+                    <h3 class="font-serif text-xl font-medium text-gray-800">Customize Message</h3>
+                </div>
+                <button onclick="toggleCustomizer()" class="p-2 text-gray-400 hover:text-gray-600 rounded-full">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Color Theme Selector -->
+            <div class="space-y-3">
+                <label class="text-xs font-semibold uppercase tracking-wider text-gray-500">Color Palette Theme</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="setTheme('default')" class="h-10 rounded-lg border-2 border-transparent hover:border-gray-400 flex items-center justify-center bg-[#fdfbf7]" title="Soft Cream">
+                        <span class="w-4 h-4 rounded-full bg-[#e8b4b8]"></span>
+                    </button>
+                    <button onclick="setTheme('blush')" class="h-10 rounded-lg border-2 border-transparent hover:border-gray-400 flex items-center justify-center bg-[#fdf6f6]" title="Pastel Blush">
+                        <span class="w-4 h-4 rounded-full bg-[#f4c2c2]"></span>
+                    </button>
+                    <button onclick="setTheme('sage')" class="h-10 rounded-lg border-2 border-transparent hover:border-gray-400 flex items-center justify-center bg-[#f6f8f6]" title="Calm Sage">
+                        <span class="w-4 h-4 rounded-full bg-[#b8cbb8]"></span>
+                    </button>
+                    <button onclick="setTheme('lavender')" class="h-10 rounded-lg border-2 border-transparent hover:border-gray-400 flex items-center justify-center bg-[#f8f6fa]" title="Soft Lavender">
+                        <span class="w-4 h-4 rounded-full bg-[#d8c4e8]"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Text Fields Customization -->
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-xs font-semibold text-gray-600">Recipient Name</label>
+                    <input type="text" id="input-recipient" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-theme-accent outline-none" value="Alex" oninput="updateContent()">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-semibold text-gray-600">Sender Name</label>
+                    <input type="text" id="input-sender" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-theme-accent outline-none" value="Chris" oninput="updateContent()">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-semibold text-gray-600">Headline Phrase</label>
+                    <input type="text" id="input-headline" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-theme-accent outline-none" value="I'm Truly Sorry," oninput="updateContent()">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-semibold text-gray-600">Apology Message Body</label>
+                    <textarea id="input-message" rows="6" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-theme-accent outline-none" oninput="updateContent()">I know I let you down, and I feel truly awful about it. Ik thoda sa pookie hu bhool jata hu but sorryyyyy😭😭😭😭😭 itna kon tadpaata hai nanni si jaan ko 😭
+Please know that it was never my intention to hurt you. 
+You deserve patience, honesty, and understanding, and I am committed to giving you just that. 
+
+SORRY YWWRRRRRR😭😭 
+Maan bhi jao😭</textarea>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t flex gap-2">
+                <button onclick="toggleCustomizer()" class="w-full py-2.5 rounded-lg bg-theme-accent text-white text-sm font-medium shadow hover:opacity-90 transition">
+                    Done Customizing
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Audio Synth Generator using Web Audio API (Calm ambient pad synth)
+        let audioCtx = null;
+        let isPlaying = false;
+        let mainGain = null;
+        let oscillators = [];
+
+        function initAudio() {
+            if (audioCtx) return;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+
+            mainGain = audioCtx.createGain();
+            mainGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            mainGain.connect(audioCtx.destination);
+
+            // Gentle soft chord frequencies (C major 7th ambient feel: C4, E4, G4, B4)
+            const freqs = [261.63, 329.63, 392.00, 493.88];
+            
+            freqs.forEach(freq => {
+                let osc = audioCtx.createOscillator();
+                let oscGain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                // Subtle LFO for gentle swelling synth effect
+                let lfo = audioCtx.createOscillator();
+                let lfoGain = audioCtx.createGain();
+                lfo.frequency.setValueAtTime(0.2, audioCtx.currentTime); // slow pulse
+                lfoGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                lfo.connect(oscGain.gain);
+                lfo.start();
+
+                oscGain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                osc.connect(oscGain);
+                oscGain.connect(mainGain);
+                
+                osc.start();
+                oscillators.push({ osc, oscGain, lfo });
+            });
+        }
+
+        function toggleAudio() {
+            if (!audioCtx) initAudio();
+
+            const icon = document.getElementById('audio-icon');
+
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            if (isPlaying) {
+                mainGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+                icon.setAttribute('data-lucide', 'music');
+                isPlaying = false;
+            } else {
+                mainGain.gain.cancelScheduledValues(audioCtx.currentTime);
+                mainGain.gain.setValueAtTime(mainGain.gain.value, audioCtx.currentTime);
+                mainGain.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + 1);
+                icon.setAttribute('data-lucide', 'volume-2');
+                isPlaying = true;
+            }
+            lucide.createIcons();
+        }
+
+        // Customizer Drawer Toggle
+        function toggleCustomizer() {
+            const modal = document.getElementById('customizer-modal');
+            const panel = document.getElementById('customizer-panel');
+
+            if (modal.classList.contains('opacity-0')) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                panel.classList.remove('translate-x-full');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                panel.classList.add('translate-x-full');
+            }
+        }
+
+        // Live Content Update Function
+        function updateContent() {
+            const recipient = document.getElementById('input-recipient').value || 'Alex';
+            const sender = document.getElementById('input-sender').value || 'Chris';
+            const headline = document.getElementById('input-headline').value || "I'm Truly Sorry,";
+            const message = document.getElementById('input-message').value;
+
+            document.getElementById('display-recipient').textContent = recipient;
+            document.getElementById('display-headline').textContent = headline;
+            document.getElementById('display-letter-greeting').textContent = `Dearest ${recipient},`;
+            document.getElementById('display-sender').textContent = sender;
+            document.getElementById('display-message').textContent = message;
+        }
+
+        // Theme Switcher
+        function setTheme(themeName) {
+            document.body.className = "bg-theme-bg text-theme-text font-sans antialiased min-h-screen transition-colors duration-500 relative overflow-x-hidden";
+            if (themeName !== 'default') {
+                document.body.classList.add(`theme-${themeName}`);
+            }
+        }
+
+        // Runaway Button Logic ("I still need time") - Constrained strictly within the card container box
+        function dodgeButton(event) {
+            if (event && event.type === 'touchstart') {
+                event.preventDefault();
+            }
+            const btn = document.getElementById('runaway-btn');
+            const card = btn.closest('section'); // The parent "How are you feeling" glass card
+            
+            if (!card) return;
+
+            const cardRect = card.getBoundingClientRect();
+            const btnRect = btn.getBoundingClientRect();
+            
+            // Current transform offset
+            const currentMatrix = window.getComputedStyle(btn).transform;
+            let currentX = 0;
+            let currentY = 0;
+            if (currentMatrix && currentMatrix !== 'none') {
+                const values = currentMatrix.split('(')[1].split(')')[0].split(',');
+                currentX = parseFloat(values[4]) || 0;
+                currentY = parseFloat(values[5]) || 0;
+            }
+
+            // Original top-left relative coordinates within the card
+            const origLeftInCard = btnRect.left - cardRect.left - currentX;
+            const origTopInCard = btnRect.top - cardRect.top - currentY;
+            
+            // Internal padding margins to keep it strictly inside the white card
+            const padding = 16;
+            const minX = padding - origLeftInCard;
+            const maxX = cardRect.width - padding - btnRect.width - origLeftInCard;
+            const minY = padding - origTopInCard;
+            const maxY = cardRect.height - padding - btnRect.height - origTopInCard;
+
+            // Compute random coordinates strictly within card boundaries
+            const newX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+            const newY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+
+            btn.style.transform = `translate3d(${newX}px, ${newY}px, 0)`;
+        }
+
+        // Forgiveness Action Handler
+        function handleForgive() {
+            const box = document.getElementById('response-box');
+            const content = document.getElementById('response-content');
+
+            box.classList.remove('hidden');
+            content.className = "p-6 rounded-2xl max-w-lg mx-auto text-center space-y-3 bg-emerald-50 border border-emerald-200 text-emerald-900 animate-fadeIn";
+            content.innerHTML = `
+                <div class="inline-flex p-3 rounded-full bg-emerald-100 text-emerald-600 mb-1">
+                    <i data-lucide="sparkles" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-3xl font-bold">THANK YOUUUUUU😭😭😭😭</h3>
+                <p class="text-sm font-light leading-relaxed">Your grace and forgiveness mean the world to me. I promise to cherish our bond and protect your trust.</p>
+            `;
+            lucide.createIcons();
+
+            // Trigger gentle celebratory confetti
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.7 },
+                colors: ['#e8b4b8', '#f4c2c2', '#a7f3d0', '#fef08a']
+            });
+        }
+
+        // Create ambient floating background particles
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const particleCount = 15;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle rounded-full bg-theme-primary';
+                
+                const size = Math.random() * 12 + 6;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.bottom = `-20px`;
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+                particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+
+                container.appendChild(particle);
+            }
+        }
+
+        // Initialize on Load
+        window.onload = function() {
+            createParticles();
+            // Format current date
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('display-date').textContent = new Date().toLocaleDateString(undefined, options);
+        };
+    </script>
+</body>
+</html>
